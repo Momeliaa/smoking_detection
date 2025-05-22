@@ -4,14 +4,11 @@ import cv2
 import torch
 import time
 
-# RTMP ���� �ּ� (EC2 IP�� �°� ����)
 RTMP_URL = "rtmp://43.200.193.228/live/stream"
 
-# YOLOv5 �� �ε� (person class��)
 model = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True)
 model.classes = [0]
 
-# libcamera-vid subprocess ����
 def start_camera():
     return subprocess.Popen([
         'libcamera-vid',
@@ -24,7 +21,6 @@ def start_camera():
         '--output', '-'
     ], stdout=subprocess.PIPE, bufsize=10**8)
 
-# YUV ������ �а� BGR ��ȯ
 def read_frame(proc):
     y_size = 640 * 480
     uv_size = y_size // 2
@@ -34,7 +30,6 @@ def read_frame(proc):
     yuv = np.frombuffer(frame_bytes, dtype=np.uint8).reshape((480 * 3) // 2, 640)
     return cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
-# ffmpeg RTMP ���� subprocess ����
 def start_rtmp_stream():
     return subprocess.Popen([
         'ffmpeg',
@@ -57,13 +52,13 @@ def main():
     streaming = False
     last_detection = 0
 
-    print("?? ī�޶� ���۵�. ��� ���� ��� ��...")
+    print("YOLO 감지 시작...")
 
     try:
         while True:
             frame = read_frame(cam_proc)
             if frame is None:
-                print("? ������ �б� ����")
+                print("카메라가 연결되지 않음")
                 break
 
             results = model(frame)
@@ -83,12 +78,12 @@ def main():
             if person_detected:
                 last_detection = now
                 if not streaming:
-                    print("? ��� ������ - RTMP ���� ����")
+                    print("사람 감지됨 - RTMP 스트림 시작")
                     ffmpeg_proc = start_rtmp_stream()
                     streaming = True
 
             elif streaming and (now - last_detection > 5):
-                print("?? ���� ���� - RTMP ���� �ߴ�")
+                print("사람 감지되지 않음 - RTMP 스트림 종료")
                 ffmpeg_proc.stdin.close()
                 ffmpeg_proc.wait()
                 ffmpeg_proc = None
@@ -99,10 +94,9 @@ def main():
                 try:
                     ffmpeg_proc.stdin.write(frame.tobytes())
                 except BrokenPipeError:
-                    print("?? ffmpeg ������ ����")
+                    print("ffmpeg 오류")
                     streaming = False
 
-            # ������ (������)
             cv2.imshow("Preview", frame)
             if cv2.waitKey(1) == 27:  # ESC
                 break
