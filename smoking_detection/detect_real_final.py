@@ -25,7 +25,7 @@ def fetch_address_from_server():
         print(f"\U0001F4CD 서버에서 수신된 주소: {address}")
         return address
     except Exception as e:
-        print("❌ 주소 요청 실패:", e)
+        print("주소 요청 실패:", e)
         return "Unknown"
 
 ADDRESS = fetch_address_from_server()
@@ -47,10 +47,10 @@ def get_device_token():
             if token.startswith("ExponentPushToken"):
                 return token
             else:
-                print("❌ 올바르지 않은 Expo 토큰 형식입니다:", token)
+                print("올바르지 않은 Expo 토큰 형식입니다:", token)
                 return None
     except FileNotFoundError:
-        print("❌ device_token.txt 없음")
+        print("device_token.txt 없음")
         return None
 
 def send_expo_push_notification(title, body, image_url=None, status="unknown", address="Unknown"):
@@ -83,18 +83,18 @@ def send_expo_push_notification(title, body, image_url=None, status="unknown", a
         result = response.json()
         print("\U0001F4E8 푸시 전송 응답:", result)
     except Exception as e:
-        print("❌ 응답 파싱 실패:", e)
+        print("응답 파싱 실패:", e)
 
 # ==== 라즈베리파이 알림 전송 ====
 def notify_raspberry_pi():
     try:
         res = requests.post(RASPBERRY_PI_ALERT_URL, json={"event": "smoking_detected"})
         if res.status_code == 200:
-            print("📢 라즈베리파이에 알림 전송 완료")
+            print("라즈베리파이에 알림 전송 완료")
         else:
-            print("⚠️ 라즈베리파이 응답 오류:", res.status_code)
+            print("라즈베리파이 응답 오류:", res.status_code)
     except Exception as e:
-        print("❌ 라즈베리파이 알림 전송 실패:", e)
+        print("라즈베리파이 알림 전송 실패:", e)
 
 # ==== YOLO 모델 로딩 ====
 model = YOLO("best.pt")
@@ -125,7 +125,7 @@ def get_rtmp_frame_generator(rtmp_url):
             break
         frame = np.frombuffer(raw, np.uint8).reshape((h, w, 3))
         if first_frame:
-            print("✅ RTMP 프레임 수신 시작")
+            print("RTMP 프레임 수신 시작")
             first_frame = False
         yield frame
 
@@ -162,9 +162,9 @@ def main():
                     if face_tracks[fid]['disappear'] > MAX_DISAPPEAR:
                         del face_tracks[fid]
                         if fid in smoking_ids:
-                            print(f"✅ 흡연 중지 감지됨! ID: {fid}")
+                            print(f"흡연 중지 감지됨! ID: {fid}")
                             send_expo_push_notification(
-                                title="✅ 흡연 중지 감지",
+                                title="흡연 중지 감지",
                                 body="더 이상 흡연이 감지되지 않습니다.",
                                 image_url="http://43.200.193.228/frames/no_smoking.jpg",
                                 status="clear",
@@ -201,10 +201,10 @@ def main():
                             break
 
                     if face_tracks[matched_id]['count'] >= 30 and matched_id not in notified_ids:
-                        print(f"🚬 흡연 감지됨! ID: {matched_id}")
+                        print(f"흡연 감지됨! ID: {matched_id}")
                         image_url = save_frame_and_get_url(frame)
                         send_expo_push_notification(
-                            title="🚬 흡연 감지됨",
+                            title="흡연 감지됨",
                             body="누군가 흡연 중입니다.",
                             image_url=image_url,
                             status="smoking",
@@ -214,7 +214,7 @@ def main():
                         notified_ids.add(matched_id)
                         smoking_ids.add(matched_id)
         except Exception as e:
-            print("❌ 프레임 수신 오류:", e)
+            print("프레임 수신 오류:", e)
             time.sleep(retry_interval)
 
 if __name__ == "__main__":
