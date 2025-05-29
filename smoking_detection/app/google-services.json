@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "917248513312",
+    "project_id": "myproject-5a805",
+    "storage_bucket": "myproject-5a805.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917248513312:android:c098535055b0616ec1f345",
+        "android_client_info": {
+          "package_name": "com.sperola37.boltexponativewind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2owiSE8y34YemdeNEadbRmSv4uyA7wn4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
